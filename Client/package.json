@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "create-react-app": "^5.0.1"
+    "create-react-app": "^5.0.1",
+    "primeicons": "^6.0.1",
+    "primereact": "^8.7.3",
+    "recharts": "^2.2.0"
   }
 }

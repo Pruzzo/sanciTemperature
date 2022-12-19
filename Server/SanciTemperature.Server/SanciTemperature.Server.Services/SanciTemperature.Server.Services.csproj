@@ -10,4 +10,8 @@
     <ProjectReference Include="..\SanciTemperature.Server.Repository\SanciTemperature.Server.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+
 </Project>

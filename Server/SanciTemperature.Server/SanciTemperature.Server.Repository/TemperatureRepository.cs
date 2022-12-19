@@ -36,7 +36,8 @@ namespace SanciTemperature.Server.Repository
                     datas.AddRange(JsonConvert.DeserializeObject<List<DateTemperature>>(stream) ?? new List<DateTemperature>());
                 }
             }
-            return datas.Where(_ => _.CreatedAt >= from && _.CreatedAt <= to).OrderBy(_ => _.CreatedAt)?.ToList() ?? new List<DateTemperature>();
+            var result = datas.Where(_ => _.CreatedAt >= from && _.CreatedAt <= to).OrderBy(_ => _.CreatedAt)?.ToList() ?? new List<DateTemperature>();
+            return result;
         }
 
         public void Save(DateTemperature dateTemperature, string fileName)

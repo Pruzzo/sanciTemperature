@@ -22,7 +22,7 @@ namespace SanciTemperature.Server.Controllers.api.v1
         [HttpGet("get")]
         public IActionResult Get([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
-            List<DateTemperature> datas = temperatureService.Get(from, to);
+            var datas = temperatureService.Get(from, to);
             return Ok(datas);
         }
     }

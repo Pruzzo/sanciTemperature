@@ -17,12 +17,40 @@ namespace SanciTemperature.Server.Services
             this.temperatureRepository = temperatureRepository;
         }
 
-        public List<DateTemperature> Get(DateTime from, DateTime to)
+        public List<ChartData> Get(DateTime from, DateTime to)
         {
-            var datas = temperatureRepository.Get(ConvertToUtcDt(from), ConvertToUtcDt(to));
-            return datas;
+            var datas = temperatureRepository.Get(from, to);
+            var showYear = true;
+            var showMonth = true;
+            var showDay = true;
+            if (datas.Any())
+            {
+                var groupedByYear = datas.GroupBy(_ => _.CreatedAt.Year).ToList();
+                if (groupedByYear.Count() == 1)
+                    showYear = false;
+                var groupedByMonth = datas.GroupBy(_ => _.CreatedAt.Month).ToList();
+                if (!showYear && groupedByMonth.Count() == 1)
+                    showMonth = false;
+                var groupedByDay = datas.GroupBy(_ => _.CreatedAt.Day).ToList();
+                if (!showMonth && groupedByDay.Count() == 1)
+                    showDay = false;
+            }
+            var format = GetDateFormat(showYear, showMonth, showDay);
+            return datas.Select(_ => new ChartData() { name = ConvertToLocalDt(_.CreatedAt).ToString(format), Temperatura = _.Temperature })?.ToList() ?? new List<ChartData>();
         }
 
+        public string GetDateFormat(bool year, bool month, bool day)
+        {
+            var format = "";
+            if (day)
+                format += "dd ";
+            if (month)
+                format += "MM ";
+            if (year)
+                format += "yyyy ";
+            format += "HH:mm";
+            return format;
+        }
         public void Save(float temperature)
         {
             var dateTemperature = new DateTemperature
@@ -33,8 +61,13 @@ namespace SanciTemperature.Server.Services
             var fileName = DateTime.UtcNow.ToString("dd-MM-yyyy");
             temperatureRepository.Save(dateTemperature, fileName);
         }
-
-        private static DateTime ConvertToUtcDt(DateTime input)
+        private DateTime ConvertToLocalDt(DateTime input)
+        {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+            var localDt = TimeZoneInfo.ConvertTimeFromUtc(input, zone);
+            return localDt;
+        }
+        private DateTime ConvertToUtcDt(DateTime input)
         {
             var dt = new DateTime(input.Year, input.Month, input.Day, input.Hour, input.Minute, input.Second, input.Millisecond, DateTimeKind.Unspecified);
             var zone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");

@@ -4,8 +4,19 @@ using SanciTemperature.Server.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllersWithViews();
+var temperatureOrigins = "SanciOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: temperatureOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:3000",
+                                              "http://rr-server-test.azurewebsites.net")
+                                                .AllowAnyHeader()
+                                                .AllowAnyMethod();
+                      });
+});
+builder.Services.AddControllers();
 builder.Services.AddSingleton<TemperatureService>();
 builder.Services.AddSingleton<TemperatureRepository>();
 var app = builder.Build();
@@ -17,7 +28,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-
+app.UseCors(temperatureOrigins);
 
 app.MapControllerRoute(
     name: "default",
