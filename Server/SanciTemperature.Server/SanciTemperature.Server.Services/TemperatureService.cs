@@ -19,9 +19,8 @@ namespace SanciTemperature.Server.Services
 
         public List<DateTemperature> Get(DateTime from, DateTime to)
         {
-            var datas = temperatureRepository.Get(from, to);
+            var datas = temperatureRepository.Get(ConvertToUtcDt(from), ConvertToUtcDt(to));
             return datas;
-
         }
 
         public void Save(float temperature)
@@ -29,14 +28,18 @@ namespace SanciTemperature.Server.Services
             var dateTemperature = new DateTemperature
             {
                 Temperature = temperature,
-                CreatedAt = Now()
+                CreatedAt = DateTime.UtcNow
             };
-            var fileName = Now().ToString("dd-MM-yyyy");
+            var fileName = DateTime.UtcNow.ToString("dd-MM-yyyy");
             temperatureRepository.Save(dateTemperature, fileName);
         }
-        private DateTime Now()
+
+        private static DateTime ConvertToUtcDt(DateTime input)
         {
-            return DateTime.Now;
+            var dt = new DateTime(input.Year, input.Month, input.Day, input.Hour, input.Minute, input.Second, input.Millisecond, DateTimeKind.Unspecified);
+            var zone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+            var utcDt = TimeZoneInfo.ConvertTimeToUtc(dt, zone);
+            return utcDt;
         }
     }
 }
