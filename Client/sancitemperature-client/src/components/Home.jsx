@@ -8,7 +8,7 @@ import Loading from './Loading';
 import { ToastOptions } from '../utils/Constants';
 import { toast } from 'react-toastify';
 import { Box } from '@mui/system';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import SendIcon from '@mui/icons-material/Send';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
@@ -16,6 +16,8 @@ import DateTimeSelector from './DateTimeSelector';
 import dayjs from 'dayjs';
 import EventIcon from '@mui/icons-material/Event';
 import TodayIcon from '@mui/icons-material/Today';
+import TemperatureTable from './TemperaturreTable';
+
 
 const Home = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +120,8 @@ const Home = () => {
                 </Box>
                 {buttonIndex == 4 ? rangePicker() : <></>}
                 <TemperatureChart data={chartData} />
+                <TemperatureTable data={chartData} />
+
             </div>
 
         );
