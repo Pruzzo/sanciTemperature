@@ -5,7 +5,7 @@ import ThermostatIcon from '@mui/icons-material/Thermostat';
 
 function TemperaturreTable(props) {
     return (
-        <TableContainer style={{marginLeft: "1vw", marginRight: "2vw"}}>
+        <TableContainer>
         <Table aria-label="simple table">
             <TableHead>
                 <TableRow>

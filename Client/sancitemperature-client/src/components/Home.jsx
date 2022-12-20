@@ -8,7 +8,7 @@ import Loading from './Loading';
 import { ToastOptions } from '../utils/Constants';
 import { toast } from 'react-toastify';
 import { Box } from '@mui/system';
-import { Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import SendIcon from '@mui/icons-material/Send';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
@@ -17,14 +17,18 @@ import dayjs from 'dayjs';
 import EventIcon from '@mui/icons-material/Event';
 import TodayIcon from '@mui/icons-material/Today';
 import TemperatureTable from './TemperaturreTable';
+import MinMax from './MinMax';
 
 
 const Home = () => {
+    const baseUrl = 'http://localhost:5031/api/v1/temperature/get';
     const [isLoading, setIsLoading] = useState(false);
     const [chartData, setChartData] = useState([]);
     const [buttonIndex, setButtonIndex] = useState(0);
     const [startDate, setStartDate] = useState(dayjs(moment().format()))
     const [endDate, setEndDate] = useState(dayjs(moment().format()))
+    const [maxTemp, setMaxTemp] = useState(0);
+    const [minTemp, setMinTemp] = useState(0);
 
     const populateChart = async (from, to) => {
         var values = await getValues(from, to);
@@ -46,6 +50,17 @@ const Home = () => {
                 <Button onClick={() => customTimeWindow()} variant='contained' >Invia</Button>
             </Box>
         </Box>
+
+
+    const PageContent = () =>
+        <>
+            {buttonIndex == 4 ? rangePicker() : <></>}
+            <MinMax min={minTemp} max={maxTemp} />
+            <TemperatureChart data={chartData} index={buttonIndex} startDate={startDate} endDate={endDate} />
+            {/* <Divider variant="inset" /> */}
+            <TemperatureTable data={chartData} />
+        </>
+
     const handleTopClick = (value) => {
         setButtonIndex(value);
         switch (value) {
@@ -67,9 +82,15 @@ const Home = () => {
 
     const getValues = async (from, to) => {
         setIsLoading(true);
-        var res = await fetch(`http://localhost:5031/api/v1/temperature/get?from=${from}&to=${to}`)
+        var res = await fetch(`${baseUrl}?from=${from}&to=${to}`)
             .then((data) => data.json())
-            .then((result) => { setIsLoading(false); return result })
+            .then((result) => {
+                setIsLoading(false);
+                var temperatures = result.map((el) => { return el.temperatura });
+                setMinTemp(Math.min.apply(Math, temperatures));
+                setMaxTemp(Math.max.apply(Math, temperatures));
+                return result
+            })
             .catch(() => {
                 setIsLoading(false);
                 toast.warning('Impossibile recuperare i dati', ToastOptions);
@@ -98,7 +119,11 @@ const Home = () => {
     }
     const customTimeWindow = async () => {
         await populateChart(moment.utc(startDate.format()).format(), moment.utc(endDate.format()).format())
+
     }
+
+
+
     useEffect(() => {
         setButtonIndex(1);
         last24Hrs();
@@ -111,16 +136,17 @@ const Home = () => {
     else {
 
         return (
-            <div className='home-panel'>
+            <div className={`home-panel`}>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }} className="boxTab">
                     <Button onClick={() => { handleTopClick(1) }} className="topButton" variant="contained" disabled={buttonIndex == 1 ? true : false} startIcon={<HistoryToggleOffIcon />}>24H</Button>
                     <Button onClick={() => { handleTopClick(2) }} className="topButton" variant="contained" disabled={buttonIndex == 2 ? true : false} startIcon={<HistoryToggleOffIcon />}>7 GG</Button>
                     <Button onClick={() => { handleTopClick(3) }} className="topButton" variant="contained" disabled={buttonIndex == 3 ? true : false} startIcon={<HistoryToggleOffIcon />}>1 M</Button>
                     <Button onClick={() => { handleTopClick(4) }} className="topButton" variant="contained" disabled={buttonIndex == 4 ? true : false} endIcon={<EventIcon />} startIcon={<EventRepeatIcon />}></Button>
                 </Box>
-                {buttonIndex == 4 ? rangePicker() : <></>}
-                <TemperatureChart data={chartData} />
-                <TemperatureTable data={chartData} />
+                {
+                    chartData.length > 0 ? <PageContent /> : <h2 style={{textAlign: "center"}}>Non ci sono dati per il periodo selezionato</h2>
+                    
+                }
 
             </div>
 
