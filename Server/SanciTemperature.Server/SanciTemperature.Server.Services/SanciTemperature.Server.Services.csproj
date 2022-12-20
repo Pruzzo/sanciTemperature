@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SanciTemperature.Server.Dto\SanciTemperature.Server.Dto.csproj" />
     <ProjectReference Include="..\SanciTemperature.Server.Repository\SanciTemperature.Server.Repository.csproj" />
   </ItemGroup>
 
