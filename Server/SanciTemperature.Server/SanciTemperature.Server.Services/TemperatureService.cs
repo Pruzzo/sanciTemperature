@@ -1,5 +1,6 @@
 ﻿using SanciTemperature.Server.Dto;
 using SanciTemperature.Server.Repository;
+using SanciTemperature.Server.Services.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,12 @@ namespace SanciTemperature.Server.Services
     public class TemperatureService
     {
         private readonly TemperatureRepository temperatureRepository;
+        private readonly IDateTimeHelper dateTimeHelper;
 
-        public TemperatureService(TemperatureRepository temperatureRepository)
+        public TemperatureService(TemperatureRepository temperatureRepository, IDateTimeHelper dateTimeHelper)
         {
             this.temperatureRepository = temperatureRepository;
+            this.dateTimeHelper = dateTimeHelper;
         }
 
         public List<ChartData> Get(DateTime from, DateTime to)
@@ -36,7 +39,7 @@ namespace SanciTemperature.Server.Services
                     showDay = false;
             }
             var format = GetDateFormat(showYear, showMonth, showDay);
-            return datas.Select(_ => new ChartData() { name = ConvertToLocalDt(_.CreatedAt).ToString(format), Temperatura = _.Temperature })?.ToList() ?? new List<ChartData>();
+            return datas.Select(_ => new ChartData() { name = ConvertToLocalDt(_.CreatedAt).ToString(format), Temperatura = Convert.ToSingle(Math.Round(_.Temperature, 2)) })?.ToList() ?? new List<ChartData>();
         }
 
         public string GetDateFormat(bool year, bool month, bool day)
@@ -53,12 +56,13 @@ namespace SanciTemperature.Server.Services
         }
         public void Save(float temperature)
         {
+            var date = dateTimeHelper.GetNow();
             var dateTemperature = new DateTemperature
             {
                 Temperature = temperature,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = date
             };
-            var fileName = DateTime.UtcNow.ToString("dd-MM-yyyy");
+            var fileName = date.ToString("dd-MM-yyyy");
             temperatureRepository.Save(dateTemperature, fileName);
         }
         private DateTime ConvertToLocalDt(DateTime input)

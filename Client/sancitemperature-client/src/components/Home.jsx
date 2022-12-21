@@ -21,9 +21,10 @@ import MinMax from './MinMax';
 
 
 const Home = () => {
-    const baseUrl = 'http://localhost:5031/api/v1/temperature/get';
+    const baseUrl = `${process.env.REACT_APP_SERVER_URL}api/v1/temperature/get`;
     const [isLoading, setIsLoading] = useState(false);
     const [chartData, setChartData] = useState([]);
+    const [reverseChartData, setReverseChartData] = useState([]);
     const [buttonIndex, setButtonIndex] = useState(0);
     const [startDate, setStartDate] = useState(dayjs(moment().format()))
     const [endDate, setEndDate] = useState(dayjs(moment().format()))
@@ -32,7 +33,10 @@ const Home = () => {
 
     const populateChart = async (from, to) => {
         var values = await getValues(from, to);
-        setChartData(values)
+        if (!!values) {
+            setChartData(values);
+            setReverseChartData(values.reverse());
+        }
     }
     const rangePicker = () =>
         <Box className="range-picker">
@@ -58,7 +62,7 @@ const Home = () => {
             <MinMax min={minTemp} max={maxTemp} />
             <TemperatureChart data={chartData} index={buttonIndex} startDate={startDate} endDate={endDate} />
             {/* <Divider variant="inset" /> */}
-            <TemperatureTable data={chartData} />
+            <TemperatureTable data={reverseChartData} />
         </>
 
     const handleTopClick = (value) => {
@@ -87,8 +91,10 @@ const Home = () => {
             .then((result) => {
                 setIsLoading(false);
                 var temperatures = result.map((el) => { return el.temperatura });
-                setMinTemp(Math.min.apply(Math, temperatures));
-                setMaxTemp(Math.max.apply(Math, temperatures));
+                var min = Math.min.apply(Math, temperatures);
+                var max = Math.max.apply(Math, temperatures);
+                setMinTemp(result[temperatures.indexOf(min)]);
+                setMaxTemp(result[temperatures.indexOf(max)]);
                 return result
             })
             .catch(() => {
@@ -125,6 +131,7 @@ const Home = () => {
 
 
     useEffect(() => {
+        console.log(process.env.REACT_APP_SERVER_URL);
         setButtonIndex(1);
         last24Hrs();
     }, [])
@@ -144,8 +151,8 @@ const Home = () => {
                     <Button onClick={() => { handleTopClick(4) }} className="topButton" variant="contained" disabled={buttonIndex == 4 ? true : false} endIcon={<EventIcon />} startIcon={<EventRepeatIcon />}></Button>
                 </Box>
                 {
-                    chartData.length > 0 ? <PageContent /> : <h2 style={{textAlign: "center"}}>Non ci sono dati per il periodo selezionato</h2>
-                    
+                    !!chartData && chartData.length > 0 ? <PageContent /> : <h2 style={{ textAlign: "center" }}>Non ci sono dati per il periodo selezionato</h2>
+
                 }
 
             </div>

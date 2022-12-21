@@ -1,5 +1,6 @@
 using SanciTemperature.Server.Repository;
 using SanciTemperature.Server.Services;
+using SanciTemperature.Server.Services.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddSingleton<TemperatureService>();
 builder.Services.AddSingleton<TemperatureRepository>();
+builder.Services.AddSingleton<IDateTimeHelper, DateTimeHelper>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,5 +37,7 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html"); ;
+
+app.UseStaticFiles();
 
 app.Run();
