@@ -7,16 +7,19 @@ namespace SanciTemperature.Server.Controllers.api.v1
     public class TemperatureController : BaseApiController
     {
         private readonly TemperatureService temperatureService;
+        private readonly SettingsService settingsService;
 
-        public TemperatureController(TemperatureService temperatureService)
+        public TemperatureController(TemperatureService temperatureService, SettingsService settingsService)
         {
             this.temperatureService = temperatureService;
+            this.settingsService = settingsService;
         }
         [HttpGet("save")]
         public IActionResult Save([FromQuery] float temperature)
         {
             temperatureService.Save(temperature);
-            return Ok();
+            var st = settingsService.GetSleepTime();
+            return Ok(st);
         }
         [HttpGet("get")]
         public IActionResult Get([FromQuery] DateTime from, [FromQuery] DateTime to)

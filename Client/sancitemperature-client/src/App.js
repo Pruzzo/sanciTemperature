@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PageLayout } from './components/PageLayout'
 import Home from './components/Home';
+import Settings from './components/Settings';
 
 
 
@@ -24,6 +25,7 @@ function App() {
       <PageLayout >
             <Routes>
               <Route path="/" exact element={<Home />} />
+              <Route path="/settings" exact element={<Settings />} />
             </Routes>
           </PageLayout>
     </>

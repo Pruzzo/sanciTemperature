@@ -17,6 +17,7 @@ String passphrase = "Default_Password";
 String st;
 String content;
 ESP8266WebServer server(80);
+uint64 sleepTime = 30e6;
 
 float tc;
 int statusCode;
@@ -80,7 +81,8 @@ void loop()
     {
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
-      String payload = http.getString();
+      char* payload = http.getString();
+      sleepTime = atol(payload);
       Serial.println(payload);
     }
     else
@@ -97,5 +99,5 @@ void loop()
   }
 
   delay(1000);
-  ESP.deepSleep(30e6);
+  ESP.deepSleep(sleepTime);
 }
