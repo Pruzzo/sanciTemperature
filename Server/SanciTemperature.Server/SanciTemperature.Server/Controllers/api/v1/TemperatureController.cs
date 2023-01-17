@@ -3,8 +3,7 @@ using SanciTemperature.Server.Dto;
 using SanciTemperature.Server.Services;
 
 namespace SanciTemperature.Server.Controllers.api.v1
-{
-    [Route("api/v1/[controller]")]
+{ 
     public class TemperatureController : BaseApiController
     {
         private readonly TemperatureService temperatureService;

@@ -19,7 +19,9 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddControllers();
 builder.Services.AddSingleton<TemperatureService>();
+builder.Services.AddSingleton<SettingsService>();
 builder.Services.AddSingleton<TemperatureRepository>();
+builder.Services.AddSingleton<SettingsRepository>();
 builder.Services.AddSingleton<IDateTimeHelper, DateTimeHelper>();
 var app = builder.Build();
 

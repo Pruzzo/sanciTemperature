@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace SanciTemperature.Server.Repository
 {
-    public class TemperatureRepository
+    public class TemperatureRepository : BaseRepository
     {
-        private readonly string basePath;
 
         public TemperatureRepository()
         {
-            basePath = $"{Environment.CurrentDirectory}/wwwroot/Database";
         }
 
         public List<DateTemperature> Get(DateTime from, DateTime to)
