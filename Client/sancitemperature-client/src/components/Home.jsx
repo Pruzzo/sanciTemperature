@@ -22,6 +22,7 @@ import MinMax from './MinMax';
 
 const Home = () => {
     const baseUrl = `${process.env.REACT_APP_SERVER_URL}api/v1/temperature/get`;
+    // const baseUrl = `http://temperaturasanci.azurewebsites.net/api/v1/temperature/get`;
     const [isLoading, setIsLoading] = useState(false);
     const [chartData, setChartData] = useState([]);
     const [reverseChartData, setReverseChartData] = useState([]);
@@ -34,6 +35,9 @@ const Home = () => {
     const populateChart = async (from, to) => {
         var values = await getValues(from, to);
         if (!!values) {
+            console.log(values);
+            console.log(values.reverse());
+
             setChartData(values);
             setReverseChartData(values.reverse());
         }
@@ -60,9 +64,9 @@ const Home = () => {
         <>
             {buttonIndex == 4 ? rangePicker() : <></>}
             <MinMax min={minTemp} max={maxTemp} />
-            <TemperatureChart data={chartData} index={buttonIndex} startDate={startDate} endDate={endDate} />
+            <TemperatureChart  data={reverseChartData} index={buttonIndex} startDate={startDate} endDate={endDate} />
             {/* <Divider variant="inset" /> */}
-            <TemperatureTable data={reverseChartData} />
+            <TemperatureTable data={chartData} />
         </>
 
     const handleTopClick = (value) => {

@@ -19,7 +19,7 @@ namespace SanciTemperature.Server.Controllers.api.v1
         {
             temperatureService.Save(temperature);
             var st = settingsService.GetSleepTime();
-            return Ok(st);
+            return Ok(new GenericResponse() { SleepTime = st});
         }
         [HttpGet("get")]
         public IActionResult Get([FromQuery] DateTime from, [FromQuery] DateTime to)

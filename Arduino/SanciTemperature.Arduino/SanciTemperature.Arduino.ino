@@ -4,7 +4,7 @@
 #include <ESP8266WebServer.h>
 #include <WiFiClient.h>
 #include <EEPROM.h>
-
+#include <ArduinoJson.h>
 #include <OneWire.h>
 
 #define WIFI_FAIL 0
@@ -18,6 +18,7 @@ String st;
 String content;
 ESP8266WebServer server(80);
 uint64 sleepTime = 30e6;
+StaticJsonDocument<200> doc;
 
 float tc;
 int statusCode;
@@ -81,8 +82,17 @@ void loop()
     {
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
-      char* payload = http.getString();
-      sleepTime = atol(payload);
+      String payload = http.getString();
+      DeserializationError error = deserializeJson(doc, payload);
+      if (error)
+      {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.f_str());
+      }
+      else{
+        sleepTime = doc["sleepTime"];
+      }
+
       Serial.println(payload);
     }
     else
