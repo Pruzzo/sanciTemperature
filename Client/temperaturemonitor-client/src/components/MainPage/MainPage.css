@@ -1,0 +1,40 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .current-temperature {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .date-selector {
+    margin-bottom: 20px;
+    width: 100%;
+    overflow-x: scroll;
+  }
+  
+  .scrollable-container {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .date-button {
+    padding: 10px;
+    border: none;
+    background-color: lightgray;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .date-button.selected {
+    background-color: darkgray;
+  }
+  
+  .temperature-graph {
+    width: 100%;
+    max-width: 600px;
+  }
+  

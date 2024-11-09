@@ -27,5 +27,11 @@ namespace SanciTemperature.Server.Controllers.api.v1
             var datas = temperatureService.Get(from, to);
             return Ok(datas);
         }
+        [HttpGet("days")]
+        public IActionResult GetAvailableDays()
+        {
+            var days = temperatureService.GetAvailableDays();
+            return Ok(days);
+        }
     }
 }

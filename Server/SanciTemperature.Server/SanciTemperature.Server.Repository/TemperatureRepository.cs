@@ -38,6 +38,14 @@ namespace SanciTemperature.Server.Repository
             return result;
         }
 
+        public List<DateTime> GetAvailableDays()
+        {
+            var path = $"{basePath}";
+            var files = Directory.GetFiles(path).Take(30).ToList();
+            return files.Select(_ => { try { return DateTime.Parse(_.Split('\\').Last().Split('.').First()); } catch (Exception e) { return new DateTime(); } }
+            ).Where(_ => _ != default)?.ToList() ?? new List<DateTime>();
+        }
+
         public void Save(DateTemperature dateTemperature, string fileName)
         {
             var path = $"{basePath}/{fileName}.json";

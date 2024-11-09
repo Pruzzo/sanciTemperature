@@ -42,6 +42,11 @@ namespace SanciTemperature.Server.Services
             return datas.Select(_ => new ChartData() { name = ConvertToLocalDt(_.CreatedAt).ToString(format), Temperatura = Convert.ToSingle(Math.Round(_.Temperature, 2)) })?.ToList() ?? new List<ChartData>();
         }
 
+        public List<DateTime> GetAvailableDays()
+        {
+            return temperatureRepository.GetAvailableDays();
+        }
+
         public string GetDateFormat(bool year, bool month, bool day)
         {
             var format = "";

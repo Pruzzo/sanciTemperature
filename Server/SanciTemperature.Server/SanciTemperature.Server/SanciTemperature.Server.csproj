@@ -15,4 +15,8 @@
     <ProjectReference Include="..\SanciTemperature.Server.Services\SanciTemperature.Server.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Database\" />
+  </ItemGroup>
+
 </Project>

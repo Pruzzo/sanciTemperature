@@ -19,10 +19,12 @@ String content;
 ESP8266WebServer server(80);
 uint64 sleepTime = 30e6;
 StaticJsonDocument<200> doc;
-
+int tryConnect = 0;
+bool wifiConnected = false;
 float tc;
 int statusCode;
-String serverPath = "http://temperaturasanci.azurewebsites.net/api/v1/temperature/save";
+float totalTC = 0;
+String serverPath = "http://temperaturemonitorsp.azurewebsites.net/api/v1/temperature/save";
 
 void initSerial(void)
 {
@@ -41,16 +43,23 @@ void setup()
   dt.begin();
   delay(10);
   Serial.println("Startup");
-  if (connectWifi(&ssid, &passphrase, &st, &content))
+  while (!wifiConnected)
   {
-    Serial.println("Succesfully Connected!!!");
-    return;
-  }
-  else
-  {
-    Serial.println("Turning the HotSpot On");
-    launchWeb(&st, &content);
-    setupAP(&st, &content); // Setup HotSpot
+    if (connectWifi(&ssid, &passphrase, &st, &content))
+    {
+      Serial.println("Succesfully Connected!!!");
+      return;
+      tryConnect = 0;
+    }
+    else
+    {
+      if (tryConnect >= 5)
+        ESP.deepSleep(sleepTime);
+      tryConnect = tryConnect + 1;
+      // Serial.println("Turning the HotSpot On");
+      // launchWeb(&st, &content);
+      // setupAP(&st, &content); // Setup HotSpot
+    }
   }
   while ((WiFi.status() != WL_CONNECTED))
   {
@@ -62,10 +71,15 @@ void setup()
 
 void readTC()
 {
-  dt.requestTemperatures();
-  tc = dt.getTempCByIndex(0);
-  Serial.print(tc);
-  Serial.println(" °C");
+  for (int i = 0; i < 10; i++)
+  {
+    dt.requestTemperatures();
+    tc = dt.getTempCByIndex(0);
+    Serial.print(tc);
+    Serial.println(" °C");
+    totalTC = totalTC + tc;
+  }
+  tc = totalTC / 10;
 }
 void loop()
 {
@@ -75,6 +89,8 @@ void loop()
     WiFiClient client;
     HTTPClient http;
     readTC();
+    Serial.print("Medium temperature: ");
+    Serial.println(tc);
     String apiPath = serverPath + "?temperature=" + tc;
     http.begin(client, apiPath.c_str());
     int httpResponseCode = http.GET();
@@ -89,8 +105,10 @@ void loop()
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
       }
-      else{
-        sleepTime = doc["sleepTime"];
+      else
+      {
+        // sleepTime = doc["sleepTime"];
+        sleepTime = 18000;
       }
 
       Serial.println(payload);
