@@ -4,7 +4,6 @@
 #include <ESP8266WebServer.h>
 #include <WiFiClient.h>
 #include <EEPROM.h>
-#include <ArduinoJson.h>
 #include <OneWire.h>
 
 #define WIFI_FAIL 0
@@ -17,8 +16,7 @@ String passphrase = "Default_Password";
 String st;
 String content;
 ESP8266WebServer server(80);
-uint64 sleepTime = 30e6;
-StaticJsonDocument<200> doc;
+uint64 sleepTime = 1200e6;
 int tryConnect = 0;
 bool wifiConnected = false;
 float tc;
@@ -28,7 +26,7 @@ String serverPath = "http://temperaturemonitorsp.azurewebsites.net/api/v1/temper
 
 void initSerial(void)
 {
-  Serial.begin(115200); // Initialising if(DEBUG)Serial Monitor
+  Serial.begin(115200); // Initialising Serial Monitor
   Serial.println();
 }
 
@@ -37,8 +35,7 @@ void setup()
   Serial.println("INIT");
   initSerial();
   disconnectWifi();
-  EEPROM.begin(512); // Initialasing EEPROM
-  // clearEEPROMData();
+  EEPROM.begin(512); // Initialising EEPROM
   readEEPROMData(&ssid, &passphrase);
   dt.begin();
   delay(10);
@@ -47,7 +44,7 @@ void setup()
   {
     if (connectWifi(&ssid, &passphrase, &st, &content))
     {
-      Serial.println("Succesfully Connected!!!");
+      Serial.println("Successfully Connected!!!");
       return;
       tryConnect = 0;
     }
@@ -56,9 +53,6 @@ void setup()
       if (tryConnect >= 5)
         ESP.deepSleep(sleepTime);
       tryConnect = tryConnect + 1;
-      // Serial.println("Turning the HotSpot On");
-      // launchWeb(&st, &content);
-      // setupAP(&st, &content); // Setup HotSpot
     }
   }
   while ((WiFi.status() != WL_CONNECTED))
@@ -81,9 +75,20 @@ void readTC()
   }
   tc = totalTC / 10;
 }
+
+long parseSleepTime(String payload)
+{
+  int startIdx = payload.indexOf("\"sleepTime\":") + 12;
+  int endIdx = payload.indexOf("}", startIdx);
+  if (startIdx >= 0 && endIdx > startIdx)
+  {
+    return payload.substring(startIdx, endIdx).toInt();
+  }
+  return 18000; // Default value in case of parsing error
+}
+
 void loop()
 {
-
   if (WiFi.status() == WL_CONNECTED)
   {
     WiFiClient client;
@@ -91,6 +96,7 @@ void loop()
     readTC();
     Serial.print("Medium temperature: ");
     Serial.println(tc);
+    
     String apiPath = serverPath + "?temperature=" + tc;
     http.begin(client, apiPath.c_str());
     int httpResponseCode = http.GET();
@@ -99,25 +105,17 @@ void loop()
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
       String payload = http.getString();
-      DeserializationError error = deserializeJson(doc, payload);
-      if (error)
-      {
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(error.f_str());
-      }
-      else
-      {
-        // sleepTime = doc["sleepTime"];
-        sleepTime = 18000;
-      }
 
-      Serial.println(payload);
+      sleepTime = parseSleepTime(payload);
+      Serial.print("Parsed sleepTime: ");
+      Serial.println(sleepTime);
     }
     else
     {
       Serial.print("Error code: ");
       Serial.println(httpResponseCode);
     }
+    
     // Free resources
     http.end();
   }
